@@ -1,44 +1,58 @@
-// Created and supervised by : Zetsukae, Uniware.
-const { Plugin } = require("BetterDiscord");
+/**
+ * @name MultiLeavePlugin
+ * @version 1.0.0
+ * @description Allows you to leave multiple servers at once.
+ * @author Zetsukae
+ */
 
-class MultiLeavePlugin extends Plugin {
-  onStart() {
+module.exports = class MultiLeavePlugin {
+  start() {
     this.addButton();
   }
 
-  // fenêtre de sélection
-  addButton() {
-    const button = document.createElement("button");
-    button.innerText = "Quitter plusieurs serveurs";
-    button.style.padding = "5px 10px";
-    button.style.fontSize = "14px";
-    button.style.cursor = "pointer";
-    button.addEventListener("click", () => this.openModal());
-
-    const header = document.querySelector(".top-bar");
-    header.appendChild(button);
+  stop() {
+    const button = document.getElementById("multi-leave-button");
+    if (button) button.remove();
   }
 
-  // liste des serveurs
+  addButton() {
+    const toolbar = document.querySelector('[class*="toolbar-"]');
+    if (!toolbar) return;
+
+    const button = document.createElement("button");
+    button.id = "multi-leave-button";
+    button.innerText = "Leave Multiple Servers";
+    button.style.marginLeft = "10px";
+    button.style.padding = "5px 10px";
+    button.style.cursor = "pointer";
+
+    button.addEventListener("click", () => this.openModal());
+
+    toolbar.appendChild(button);
+  }
+
   openModal() {
     const modal = document.createElement("div");
-    modal.classList.add("modal");
     modal.style.position = "fixed";
     modal.style.top = "50%";
     modal.style.left = "50%";
     modal.style.transform = "translate(-50%, -50%)";
+    modal.style.background = "#2f3136";
+    modal.style.color = "#fff";
     modal.style.padding = "20px";
-    modal.style.backgroundColor = "#fff";
-    modal.style.borderRadius = "10px";
-    modal.style.zIndex = "9999";
+    modal.style.borderRadius = "8px";
+    modal.style.zIndex = 9999;
+    modal.style.maxHeight = "500px";
+    modal.style.overflowY = "auto";
+    modal.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
 
     const serverList = document.createElement("div");
-    serverList.style.maxHeight = "300px";
-    serverList.style.overflowY = "auto";
 
-    // Liste tous les serveurs auxquels l'utilisateur appartient
     const servers = this.getServers();
     servers.forEach(server => {
+      const container = document.createElement("div");
+      container.style.marginBottom = "5px";
+
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.id = server-${server.id};
@@ -47,62 +61,53 @@ class MultiLeavePlugin extends Plugin {
       const label = document.createElement("label");
       label.htmlFor = checkbox.id;
       label.innerText = server.name;
+      label.style.marginLeft = "5px";
 
-      const container = document.createElement("div");
       container.appendChild(checkbox);
       container.appendChild(label);
       serverList.appendChild(container);
     });
 
     const confirmButton = document.createElement("button");
-    confirmButton.innerText = "Confirmer";
+    confirmButton.innerText = "Confirm";
     confirmButton.style.marginTop = "10px";
-    confirmButton.style.padding = "10px";
+    confirmButton.style.padding = "8px";
     confirmButton.style.cursor = "pointer";
-    confirmButton.addEventListener("click", () => this.leaveServers());
+    confirmButton.addEventListener("click", () => {
+      this.leaveSelectedServers();
+      modal.remove();
+    });
 
     modal.appendChild(serverList);
     modal.appendChild(confirmButton);
     document.body.appendChild(modal);
   }
 
-  // Récupère les serveurs auxquels l'utilisateur appartient
   getServers() {
     const servers = [];
-    const serverElements = document.querySelectorAll(".guild");
-    serverElements.forEach((serverElement) => {
-      const serverName = serverElement.querySelector(".guild-name").textContent;
-      const serverId = serverElement.getAttribute("data-id");
-      servers.push({ name: serverName, id: serverId });
-    });
+    const guilds = BdApi.findModuleByProps("getGuilds")?.getGuilds?.();
+    if (!guilds) return [];
+
+    for (const [id, guild] of Object.entries(guilds)) {
+      servers.push({ id, name: guild.name });
+    }
     return servers;
   }
 
-  // Quitte les serveurs sélectionnés
-  leaveServers() {
+  leaveSelectedServers() {
     const checkboxes = document.querySelectorAll("input[type='checkbox']:checked");
     checkboxes.forEach((checkbox) => {
       const serverId = checkbox.dataset.serverId;
       this.leaveServer(serverId);
     });
-
-    // Ferme la fenêtre modale
-    document.querySelector(".modal").remove();
   }
 
-  // Fonction pour quitter un serveur
-  leaveServer(serverId) {
-    const server = document.querySelector(.guild[data-id="${serverId}"]);
-    if (server) {
-      const contextMenu = server.querySelector(".guild-context-menu");
-      if (contextMenu) {
-        const leaveButton = contextMenu.querySelector(".leave-server");
-        if (leaveButton) {
-          leaveButton.click();
-        }
-      }
+  leaveServer(guildId) {
+    const GuildActions = BdApi.findModuleByProps("leaveGuild");
+    if (GuildActions && GuildActions.leaveGuild) {
+      GuildActions.leaveGuild(guildId);
+    } else {
+      BdApi.showToast("Failed to leave server: module not found.", { type: "error" });
     }
   }
-}
-
-module.exports = MultiLeavePlugin;
+};
