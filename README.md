@@ -17,8 +17,11 @@
 ---
 
 ## Screenshots
+![Capture d'écran 2025-04-22 222437](https://github.com/user-attachments/assets/e5e68112-6ffc-49ac-8f92-21d8d2fc6e87)
 
-(Ajoute ici une ou deux captures de ton plugin en action si tu veux)
+![Capture d'écran 2025-04-22 222454](https://github.com/user-attachments/assets/43d9982e-2cc4-4e40-81ce-f0636b2d5293)
+
+![Capture d'écran 2025-04-22 222511](https://github.com/user-attachments/assets/63250ac0-694e-4241-94e9-129b4185302b)
 
 ---
 
