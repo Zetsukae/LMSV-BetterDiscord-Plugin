@@ -12,8 +12,7 @@
 - *Server icons and real names*
 - *Checkbox selection*
 - *Confirm / Cancel buttons*
-- *Instant success toast when leaving a server*
-- *Error toast if you're the owner of the server*
+- *Delete many servers in one click*
 
 ---
 
