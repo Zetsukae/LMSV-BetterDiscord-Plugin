@@ -1,6 +1,6 @@
 # LeaveMultipleServersVanilla
 
-> *BetterDiscord plugin* — Leave multiple servers at once, with server icons, names, and instant success/error messages.
+> *BetterDiscord plugin* — Leave multiple servers at once, with server icons, names.
 
 ![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)
 
