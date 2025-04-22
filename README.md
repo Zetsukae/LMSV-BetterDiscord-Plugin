@@ -1,2 +1,2 @@
-# MultiLeaveVencordPlugin
-a Vencord Plugin
+# MultiLeaveBetterDiscord - PLugin
+this plugin is currently in dev. come back later...
