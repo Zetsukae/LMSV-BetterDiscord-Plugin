@@ -1,11 +1,12 @@
-const { Plugin } = require("vencord");
+// Created and supervised by : Zetsukae, Uniware.
+const { Plugin } = require("BetterDiscord");
 
 class MultiLeavePlugin extends Plugin {
   onStart() {
     this.addButton();
   }
 
-  // Ajoute un bouton dans la barre d'outils pour ouvrir la fenêtre de sélection
+  // fenêtre de sélection
   addButton() {
     const button = document.createElement("button");
     button.innerText = "Quitter plusieurs serveurs";
@@ -18,7 +19,7 @@ class MultiLeavePlugin extends Plugin {
     header.appendChild(button);
   }
 
-  // Crée la fenêtre modale avec la liste des serveurs
+  // liste des serveurs
   openModal() {
     const modal = document.createElement("div");
     modal.classList.add("modal");
