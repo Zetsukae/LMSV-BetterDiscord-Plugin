@@ -1,8 +1,9 @@
 /**
  * @name MultiLeavePlugin
- * @version 1.0.0
- * @description Allows you to leave multiple servers at once.
+ * @version 1.0.1
+ * @description Allows you to leave multiple servers at once, with a button next to the inbox icon.
  * @author Zetsukae
+ * @github 
  */
 
 module.exports = class MultiLeavePlugin {
@@ -16,19 +17,34 @@ module.exports = class MultiLeavePlugin {
   }
 
   addButton() {
-    const toolbar = document.querySelector('[class*="toolbar-"]');
-    if (!toolbar) return;
+    const inboxButton = document.querySelector('[class*="inbox-"]');
+
+    if (!inboxButton || !inboxButton.parentElement) return;
 
     const button = document.createElement("button");
     button.id = "multi-leave-button";
-    button.innerText = "Leave Multiple Servers";
-    button.style.marginLeft = "10px";
-    button.style.padding = "5px 10px";
+    button.innerText = "⇾ Leave Servers";
+    button.style.marginRight = "8px";
+    button.style.padding = "4px 8px";
+    button.style.fontSize = "12px";
     button.style.cursor = "pointer";
+    button.style.background = "transparent";
+    button.style.border = "1px solid #ccc";
+    button.style.borderRadius = "4px";
+    button.style.color = "#ccc";
+
+    button.addEventListener("mouseenter", () => {
+      button.style.background = "#40444b";
+    });
+
+    button.addEventListener("mouseleave", () => {
+      button.style.background = "transparent";
+    });
 
     button.addEventListener("click", () => this.openModal());
 
-    toolbar.appendChild(button);
+    // Insert the button before the inbox icon
+    inboxButton.parentElement.insertBefore(button, inboxButton);
   }
 
   openModal() {
@@ -55,7 +71,7 @@ module.exports = class MultiLeavePlugin {
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.id = `server-${server.id}`;
+      checkbox.id = server-${server.id};
       checkbox.dataset.serverId = server.id;
 
       const label = document.createElement("label");
@@ -100,6 +116,8 @@ module.exports = class MultiLeavePlugin {
       const serverId = checkbox.dataset.serverId;
       this.leaveServer(serverId);
     });
+
+    BdApi.showToast(Left ${checkboxes.length} server(s)., { type: "success" });
   }
 
   leaveServer(guildId) {
