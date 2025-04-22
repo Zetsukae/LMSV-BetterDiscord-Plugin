@@ -3,7 +3,7 @@
  * @version 1.0.1
  * @description Allows you to leave multiple servers at once, with a button next to the inbox icon.
  * @author Zetsukae
- * @Github 
+ * @Github https://github.com/Zetsukae/MultiLeaveBDPlugin
  */
 
 module.exports = class MultiLeavePlugin {
