@@ -55,7 +55,7 @@ module.exports = class MultiLeavePlugin {
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.id = server-${server.id};
+      checkbox.id = `server-${server.id}`;
       checkbox.dataset.serverId = server.id;
 
       const label = document.createElement("label");
