@@ -27,7 +27,7 @@
 
 ## Installation
 
-1. Download [LeaveMultipleServersVanilla.plugin.js](./LeaveMultipleServersVanilla.plugin.js)
+1. Download [LeaveMultipleServersVanilla.plugin.js](./https://github.com/Zetsukae/LMSV-BetterDiscord-Plugin/releases/download/LeaveMultipleServersVanilla/MultiLeavePlugin.plugin.js)
 2. Move the file into your BetterDiscord plugins folder: %appdata%/BetterDiscord/plugins/
 3. Enable it from the BetterDiscord plugin settings.
 4. Reload Discord (Ctrl+R)
