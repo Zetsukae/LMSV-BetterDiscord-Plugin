@@ -3,7 +3,7 @@
  * @version 1.0.1
  * @description Allows you to leave multiple servers at once, with a button next to the inbox icon.
  * @author Zetsukae
- * @github https://github.com/Zetsukae/MultiLeaveBDPlugin
+ * @Github 
  */
 
 module.exports = class MultiLeavePlugin {
@@ -112,11 +112,16 @@ module.exports = class MultiLeavePlugin {
 
   leaveSelectedServers() {
     const checkboxes = document.querySelectorAll("input[type='checkbox']:checked");
+    
+    // Log the number of selected checkboxes for debugging
+    console.log(Selected checkboxes: ${checkboxes.length});
+    
     checkboxes.forEach((checkbox) => {
       const serverId = checkbox.dataset.serverId;
       this.leaveServer(serverId);
     });
 
+    // Show success toast with the number of servers left
     BdApi.showToast(Left ${checkboxes.length} server(s)., { type: "success" });
   }
 
