@@ -8,7 +8,9 @@
 
 module.exports = class MultiLeavePlugin {
   start() {
-    this.addButton();
+    setTimeout(() => {
+      this.addButton();
+    }, 1000);  // Délai de 1 seconde pour permettre à Discord de charger
   }
 
   stop() {
@@ -17,20 +19,23 @@ module.exports = class MultiLeavePlugin {
   }
 
   addButton() {
-    const inboxButton = document.querySelector('[class*="inbox-"]');
+    // Cibler le bouton "+" dans la barre de chat (en utilisant un sélecteur générique)
+    const chatInputContainer = document.querySelector('[class*="chatInput-"]');
+    const plusButton = chatInputContainer?.querySelector('[aria-label="Add a reaction"]');  // Assurez-vous que c'est le bon sélecteur
 
-    if (!inboxButton || !inboxButton.parentElement) return;
+    console.log(plusButton);  // Vérifier si le bouton "+" est trouvé
 
+    if (!plusButton) return;
+
+    // Créer un bouton "X"
     const button = document.createElement("button");
     button.id = "multi-leave-button";
-    button.innerText = "⇾ Leave Servers";
-    button.style.marginRight = "8px";
-    button.style.padding = "4px 8px";
-    button.style.fontSize = "12px";
+    button.innerText = "X";
+    button.style.marginLeft = "8px";
+    button.style.fontSize = "16px";
     button.style.cursor = "pointer";
     button.style.background = "transparent";
-    button.style.border = "1px solid #ccc";
-    button.style.borderRadius = "4px";
+    button.style.border = "none";
     button.style.color = "#ccc";
 
     button.addEventListener("mouseenter", () => {
@@ -41,10 +46,10 @@ module.exports = class MultiLeavePlugin {
       button.style.background = "transparent";
     });
 
-    button.addEventListener("click", () => this.openModal());
+    button.addEventListener("click", () => this.openModal());  // Ouvrir le menu du plugin
 
-    // Insert the button before the inbox icon
-    inboxButton.parentElement.insertBefore(button, inboxButton);
+    // Ajouter le bouton juste à côté du bouton "+"
+    chatInputContainer.appendChild(button);
   }
 
   openModal() {
