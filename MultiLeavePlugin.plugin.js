@@ -1,141 +1,165 @@
 /**
- * @name MultiLeavePlugin
- * @version 1.0.1
- * @description Allows you to leave multiple servers at once, with a button next to the inbox icon.
+ * @name LeaveMultipleServersVanilla
  * @author Zetsukae
- * @Github https://github.com/Zetsukae/MultiLeaveBDPlugin
+ * @version 1.2.1
+ * @description Leave multiple servers at once, with server icons, names — V.1.2.1 / only created by Zetsukae
+ * @github https://github.com/Zetsukae/MultiLeaveBDPlugin
  */
 
-module.exports = class MultiLeavePlugin {
-  start() {
-    setTimeout(() => {
-      this.addButton();
-    }, 1000);  // Délai de 1 seconde pour permettre à Discord de charger
-  }
-
-  stop() {
-    const button = document.getElementById("multi-leave-button");
-    if (button) button.remove();
-  }
-
-  addButton() {
-    // Cibler le bouton "+" dans la barre de chat (en utilisant un sélecteur générique)
-    const chatInputContainer = document.querySelector('[class*="chatInput-"]');
-    const plusButton = chatInputContainer?.querySelector('[aria-label="Add a reaction"]');  // Assurez-vous que c'est le bon sélecteur
-
-    console.log(plusButton);  // Vérifier si le bouton "+" est trouvé
-
-    if (!plusButton) return;
-
-    // Créer un bouton "X"
-    const button = document.createElement("button");
-    button.id = "multi-leave-button";
-    button.innerText = "X";
-    button.style.marginLeft = "8px";
-    button.style.fontSize = "16px";
-    button.style.cursor = "pointer";
-    button.style.background = "transparent";
-    button.style.border = "none";
-    button.style.color = "#ccc";
-
-    button.addEventListener("mouseenter", () => {
-      button.style.background = "#40444b";
-    });
-
-    button.addEventListener("mouseleave", () => {
-      button.style.background = "transparent";
-    });
-
-    button.addEventListener("click", () => this.openModal());  // Ouvrir le menu du plugin
-
-    // Ajouter le bouton juste à côté du bouton "+"
-    chatInputContainer.appendChild(button);
-  }
-
-  openModal() {
-    const modal = document.createElement("div");
-    modal.style.position = "fixed";
-    modal.style.top = "50%";
-    modal.style.left = "50%";
-    modal.style.transform = "translate(-50%, -50%)";
-    modal.style.background = "#2f3136";
-    modal.style.color = "#fff";
-    modal.style.padding = "20px";
-    modal.style.borderRadius = "8px";
-    modal.style.zIndex = 9999;
-    modal.style.maxHeight = "500px";
-    modal.style.overflowY = "auto";
-    modal.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
-
-    const serverList = document.createElement("div");
-
-    const servers = this.getServers();
-    servers.forEach(server => {
-      const container = document.createElement("div");
-      container.style.marginBottom = "5px";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = server-${server.id};
-      checkbox.dataset.serverId = server.id;
-
-      const label = document.createElement("label");
-      label.htmlFor = checkbox.id;
-      label.innerText = server.name;
-      label.style.marginLeft = "5px";
-
-      container.appendChild(checkbox);
-      container.appendChild(label);
-      serverList.appendChild(container);
-    });
-
-    const confirmButton = document.createElement("button");
-    confirmButton.innerText = "Confirm";
-    confirmButton.style.marginTop = "10px";
-    confirmButton.style.padding = "8px";
-    confirmButton.style.cursor = "pointer";
-    confirmButton.addEventListener("click", () => {
-      this.leaveSelectedServers();
-      modal.remove();
-    });
-
-    modal.appendChild(serverList);
-    modal.appendChild(confirmButton);
-    document.body.appendChild(modal);
-  }
-
-  getServers() {
-    const servers = [];
-    const guilds = BdApi.findModuleByProps("getGuilds")?.getGuilds?.();
-    if (!guilds) return [];
-
-    for (const [id, guild] of Object.entries(guilds)) {
-      servers.push({ id, name: guild.name });
+module.exports = class {
+    start() {
+        console.log("LeaveMultipleServersVanilla loaded.");
     }
-    return servers;
-  }
 
-  leaveSelectedServers() {
-    const checkboxes = document.querySelectorAll("input[type='checkbox']:checked");
-    
-    // Log the number of selected checkboxes for debugging
-    console.log(Selected checkboxes: ${checkboxes.length});
-    
-    checkboxes.forEach((checkbox) => {
-      const serverId = checkbox.dataset.serverId;
-      this.leaveServer(serverId);
-    });
+    stop() {}
 
-    // Show success toast with the number of servers left
-    BdApi.showToast(Left ${checkboxes.length} server(s)., { type: "success" });
-  }
+    getSettingsPanel() {
+        const container = document.createElement("div");
+        container.style.padding = "20px";
 
-  leaveServer(guildId) {
-    const GuildActions = BdApi.findModuleByProps("leaveGuild");
-    if (GuildActions && GuildActions.leaveGuild) {
-      GuildActions.leaveGuild(guildId);
-    } else {
-      BdApi.showToast("Failed to leave server: module not found.", { type: "error" });
+        const button = document.createElement("button");
+        button.innerText = "Leave Multiple Servers";
+        button.style.padding = "10px 20px";
+        button.style.background = "#7289da";
+        button.style.color = "white";
+        button.style.border = "none";
+        button.style.borderRadius = "5px";
+        button.style.cursor = "pointer";
+        button.onclick = () => this.showServerList();
+
+        container.appendChild(button);
+        return container;
     }
-  }
+
+    showServerList() {
+        const GuildStore = BdApi.findModuleByProps("getGuilds", "getGuild");
+        const GuildActions = BdApi.findModuleByProps("leaveGuild");
+        const CurrentUser = BdApi.findModuleByProps("getCurrentUser");
+        const myId = CurrentUser.getCurrentUser().id;
+        const guilds = GuildStore.getGuilds();
+
+        const overlay = document.createElement("div");
+        overlay.style = `
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+        `;
+        overlay.onclick = () => document.body.removeChild(overlay);
+
+        const modal = document.createElement("div");
+        modal.style = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2f3136;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            max-height: 80vh;
+            overflow-y: auto;
+            min-width: 300px;
+        `;
+        modal.onclick = (e) => e.stopPropagation();
+
+        const title = document.createElement("h3");
+        title.innerText = "Select servers to leave:";
+        modal.appendChild(title);
+
+        const list = document.createElement("div");
+        list.style.marginTop = "15px";
+
+        const selectedServers = [];
+
+        for (const [id, guild] of Object.entries(guilds)) {
+            const item = document.createElement("div");
+            item.style.display = "flex";
+            item.style.alignItems = "center";
+            item.style.marginBottom = "8px";
+
+            const icon = document.createElement("img");
+            icon.style.width = "24px";
+            icon.style.height = "24px";
+            icon.style.borderRadius = "50%";
+            icon.style.marginRight = "8px";
+
+            if (guild.icon) {
+                icon.src = 'https://cdn.discordapp.com/icons/' + id + '/' + guild.icon + '.png';
+            } else {
+                icon.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
+            }
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = id;
+            checkbox.style.marginRight = "8px";
+            checkbox.onchange = (e) => {
+                if (e.target.checked) {
+                    selectedServers.push(id);
+                } else {
+                    const index = selectedServers.indexOf(id);
+                    if (index > -1) selectedServers.splice(index, 1);
+                }
+            };
+
+            const label = document.createElement("span");
+            const guildData = GuildStore.getGuild(id);
+            if (guildData && guildData.name) {
+                label.innerText = guildData.name;
+            } else {
+                label.innerText = 'Server ID: ' + id;
+            }
+
+            item.appendChild(icon);
+            item.appendChild(checkbox);
+            item.appendChild(label);
+            list.appendChild(item);
+        }
+
+        modal.appendChild(list);
+
+        const actions = document.createElement("div");
+        actions.style.marginTop = "15px";
+        actions.style.textAlign = "right";
+
+        const confirmButton = document.createElement("button");
+        confirmButton.innerText = "Confirm";
+        confirmButton.style.marginRight = "10px";
+        confirmButton.style.padding = "5px 10px";
+        confirmButton.style.background = "#7289da";
+        confirmButton.style.color = "white";
+        confirmButton.style.border = "none";
+        confirmButton.style.borderRadius = "5px";
+        confirmButton.style.cursor = "pointer";
+        confirmButton.onclick = () => {
+            selectedServers.forEach(guildId => {
+                const guildData = GuildStore.getGuild(guildId);
+                if (guildData.ownerId === myId) {
+                    BdApi.showToast("Cannot leave " + guildData.name + ", you are the owner!", {type: "error"});
+                } else {
+                    BdApi.showToast("Successfully left server: " + guildData.name, {type: "success"});
+                    GuildActions.leaveGuild(guildId);
+                }
+            });
+            document.body.removeChild(overlay);
+        };
+
+        const cancelButton = document.createElement("button");
+        cancelButton.innerText = "Cancel";
+        cancelButton.style.padding = "5px 10px";
+        cancelButton.style.background = "#4f545c";
+        cancelButton.style.color = "white";
+        cancelButton.style.border = "none";
+        cancelButton.style.borderRadius = "5px";
+        cancelButton.style.cursor = "pointer";
+        cancelButton.onclick = () => document.body.removeChild(overlay);
+
+        actions.appendChild(confirmButton);
+        actions.appendChild(cancelButton);
+        modal.appendChild(actions);
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    }
 };
