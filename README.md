@@ -1,0 +1,2 @@
+# MultiLeaveVencordPlugin
+a Vencord Plugin
