@@ -1,10 +1,9 @@
 /**
  * @name LeaveMultipleServersVanilla
- * @version 1.2.3
- * @description Leave multiple servers at once, with server icons and names.
  * @author Zetsukae
- * @source https://github.com/Zetsukae/MultiLeaveBDPlugin
- * @updateUrl https://raw.githubusercontent.com/Zetsukae/MultiLeaveBDPlugin/main/LeaveMultipleServersVanilla.plugin.js
+ * @version 1.2.2
+ * @description Leave multiple servers at once, with server icons, names — V.1.2.1 / only created by Zetsukae
+ * @github https://github.com/Zetsukae/MultiLeaveBDPlugin
  */
 
 module.exports = class {
@@ -12,10 +11,7 @@ module.exports = class {
         console.log("LeaveMultipleServersVanilla loaded.");
     }
 
-    stop() {
-        const existing = document.getElementById("leave-multiple-modal");
-        if (existing) existing.remove();
-    }
+    stop() {}
 
     getSettingsPanel() {
         const container = document.createElement("div");
@@ -36,16 +32,13 @@ module.exports = class {
     }
 
     showServerList() {
-        const GuildStore = BdApi.findModuleByProps("getGuilds", "getGuild");
-        const GuildActions = BdApi.findModuleByProps("leaveGuild");
-        const CurrentUser = BdApi.findModuleByProps("getCurrentUser");
-        const GuildOwnerStore = BdApi.findModuleByProps("getOwnerId");
-
-        const myId = CurrentUser.getCurrentUser().id;
-        const guilds = GuildStore.getGuilds();
+        const { getGuilds, getGuild } = BdApi.findModuleByProps("getGuilds", "getGuild");
+        const { leaveGuild } = BdApi.findModuleByProps("leaveGuild");
+        const { getCurrentUser } = BdApi.findModuleByProps("getCurrentUser");
+        const myId = getCurrentUser().id;
+        const guilds = getGuilds();
 
         const overlay = document.createElement("div");
-        overlay.id = "leave-multiple-modal";
         overlay.style = `
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -94,7 +87,7 @@ module.exports = class {
             if (guild.icon) {
                 icon.src = https://cdn.discordapp.com/icons/${id}/${guild.icon}.png;
             } else {
-                icon.src = https://cdn.discordapp.com/embed/avatars/0.png;
+                icon.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
             }
 
             const checkbox = document.createElement("input");
@@ -111,7 +104,12 @@ module.exports = class {
             };
 
             const label = document.createElement("span");
-            label.innerText = guild.name || Server ID: ${id};
+            const guildData = getGuild(id);
+            if (guildData && guildData.name) {
+                label.innerText = guildData.name;
+            } else {
+                label.innerText = Server ID: ${id};
+            }
 
             item.appendChild(icon);
             item.appendChild(checkbox);
@@ -136,14 +134,12 @@ module.exports = class {
         confirmButton.style.cursor = "pointer";
         confirmButton.onclick = () => {
             selectedServers.forEach(guildId => {
-                const guildData = GuildStore.getGuild(guildId);
-                const ownerId = GuildOwnerStore.getOwnerId(guildId);
-
-                if (ownerId === myId) {
-                    BdApi.showToast(Cannot leave ${guildData.name}, you are the owner!, {type: "error"});
+                const guildData = getGuild(guildId);
+                if (guildData.ownerId === myId) {
+                    BdApi.showToast(Cannot leave ${guildData.name}, you are the owner!, { type: "error" });
                 } else {
-                    GuildActions.leaveGuild(guildId);
-                    BdApi.showToast(Successfully left server: ${guildData.name}, {type: "success"});
+                    BdApi.showToast(Successfully left server: ${guildData.name}, { type: "success" });
+                    leaveGuild(guildId);
                 }
             });
             document.body.removeChild(overlay);
