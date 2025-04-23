@@ -1,7 +1,7 @@
 /**
  * @name LeaveMultipleServersVanilla
  * @author Zetsukae
- * @version 1.2.1
+ * @version 1.2.2
  * @description Leave multiple servers at once, with server icons, names — V.1.2.1 / only created by Zetsukae
  * @github https://github.com/Zetsukae/MultiLeaveBDPlugin
  */
