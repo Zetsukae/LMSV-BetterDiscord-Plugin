@@ -85,7 +85,7 @@ module.exports = class {
             icon.style.marginRight = "8px";
 
             if (guild.icon) {
-                icon.src = `https://cdn.discordapp.com/icons/${id}/${guild.icon}.png`;
+                icon.src = 'https://cdn.discordapp.com/icons/${id}/${guild.icon}.png';
             } else {
                 icon.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
             }
@@ -108,7 +108,7 @@ module.exports = class {
             if (guildData && guildData.name) {
                 label.innerText = guildData.name;
             } else {
-                label.innerText = `Server ID: ${id}`;
+                label.innerText = 'Server ID: ${id}';
             }
 
             item.appendChild(icon);
@@ -136,9 +136,9 @@ module.exports = class {
             selectedServers.forEach(guildId => {
                 const guildData = getGuild(guildId);
                 if (guildData.ownerId === myId) {
-                    BdApi.showToast(`Cannot leave ${guildData.name}, you are the owner!`, { type: "error" });
+                    BdApi.showToast('Cannot leave ${guildData.name}, you are the owner!', { type: "error" });
                 } else {
-                    BdApi.showToast(`Successfully left server: ${guildData.name}`, { type: "success" });
+                    BdApi.showToast('Successfully left server: ${guildData.name}', { type: "success" });
                     leaveGuild(guildId);
                 }
             });
