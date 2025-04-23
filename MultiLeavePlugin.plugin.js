@@ -1,14 +1,13 @@
 /**
- * @name LeaveMultipleServersVanilla
+ * @name LeaveMultipleServers
  * @author Zetsukae
- * @version 1.2.2
- * @description Leave multiple servers at once, with server icons, names — V.1.2.2 / only created by Zetsukae
- * @github https://github.com/Zetsukae/MultiLeaveBDPlugin
+ * @version 1.0.0
+ * @description Leave Multiple Servers more easily !
  */
 
 module.exports = class {
     start() {
-        console.log("LeaveMultipleServersVanilla loaded.");
+        console.log("LeaveMultipleServersManual loaded.");
     }
 
     stop() {}
@@ -18,7 +17,7 @@ module.exports = class {
         container.style.padding = "20px";
 
         const button = document.createElement("button");
-        button.innerText = "Leave Multiple Servers";
+        button.innerText = "Gérer les serveurs";
         button.style.padding = "10px 20px";
         button.style.background = "#7289da";
         button.style.color = "white";
@@ -64,101 +63,75 @@ module.exports = class {
         modal.onclick = (e) => e.stopPropagation();
 
         const title = document.createElement("h3");
-        title.innerText = "Select servers to leave:";
+        title.innerText = "Clique sur chaque bouton pour quitter un serveur :";
         modal.appendChild(title);
 
         const list = document.createElement("div");
         list.style.marginTop = "15px";
 
-        const selectedServers = [];
-
         for (const [id, guild] of Object.entries(guilds)) {
             const item = document.createElement("div");
             item.style.display = "flex";
             item.style.alignItems = "center";
-            item.style.marginBottom = "8px";
+            item.style.marginBottom = "10px";
+            item.style.justifyContent = "space-between";
+
+            const left = document.createElement("div");
+            left.style.display = "flex";
+            left.style.alignItems = "center";
 
             const icon = document.createElement("img");
             icon.style.width = "24px";
             icon.style.height = "24px";
             icon.style.borderRadius = "50%";
             icon.style.marginRight = "8px";
+            icon.src = guild.icon 
+                ? https://cdn.discordapp.com/icons/${id}/${guild.icon}.png
+                : https://cdn.discordapp.com/embed/avatars/0.png;
 
-            if (guild.icon) {
-                icon.src = 'https://cdn.discordapp.com/icons/' + id + '/' + guild.icon + '.png';
-            } else {
-                icon.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
-            }
+            const label = document.createElement("span");
+            label.innerText = guild.name || Server ID: ${id};
 
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.value = id;
-            checkbox.style.marginRight = "8px";
-            checkbox.onchange = (e) => {
-                if (e.target.checked) {
-                    selectedServers.push(id);
+            left.appendChild(icon);
+            left.appendChild(label);
+
+            const leaveButton = document.createElement("button");
+            leaveButton.innerText = "Quitter";
+            leaveButton.style.padding = "5px 10px";
+            leaveButton.style.background = "#f04747";
+            leaveButton.style.color = "white";
+            leaveButton.style.border = "none";
+            leaveButton.style.borderRadius = "5px";
+            leaveButton.style.cursor = "pointer";
+            leaveButton.onclick = () => {
+                if (guild.ownerId === myId) {
+                    BdApi.showToast(Impossible de quitter ${guild.name} : vous êtes le propriétaire., { type: "error" });
                 } else {
-                    const index = selectedServers.indexOf(id);
-                    if (index > -1) selectedServers.splice(index, 1);
+                    GuildActions.leaveGuild(id);
+                    BdApi.showToast(Vous avez quitté : ${guild.name}, { type: "success" });
+                    item.remove();
                 }
             };
 
-            const label = document.createElement("span");
-            const guildData = GuildStore.getGuild(id);
-            if (guildData && guildData.name) {
-                label.innerText = guildData.name;
-            } else {
-                label.innerText = 'Server ID: ' + id;
-            }
-
-            item.appendChild(icon);
-            item.appendChild(checkbox);
-            item.appendChild(label);
+            item.appendChild(left);
+            item.appendChild(leaveButton);
             list.appendChild(item);
         }
 
         modal.appendChild(list);
 
-        const actions = document.createElement("div");
-        actions.style.marginTop = "15px";
-        actions.style.textAlign = "right";
+        const closeBtn = document.createElement("button");
+        closeBtn.innerText = "Fermer";
+        closeBtn.style.marginTop = "15px";
+        closeBtn.style.padding = "5px 10px";
+        closeBtn.style.background = "#4f545c";
+        closeBtn.style.color = "white";
+        closeBtn.style.border = "none";
+        closeBtn.style.borderRadius = "5px";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.onclick = () => document.body.removeChild(overlay);
 
-        const confirmButton = document.createElement("button");
-        confirmButton.innerText = "Confirm";
-        confirmButton.style.marginRight = "10px";
-        confirmButton.style.padding = "5px 10px";
-        confirmButton.style.background = "#7289da";
-        confirmButton.style.color = "white";
-        confirmButton.style.border = "none";
-        confirmButton.style.borderRadius = "5px";
-        confirmButton.style.cursor = "pointer";
-        confirmButton.onclick = () => {
-            selectedServers.forEach(guildId => {
-                const guildData = GuildStore.getGuild(guildId);
-                if (guildData.ownerId === myId) {
-                    BdApi.showToast("Cannot leave " + guildData.name + ", you are the owner!", {type: "error"});
-                } else {
-                    BdApi.showToast("Successfully left server: " + guildData.name, {type: "success"});
-                    GuildActions.leaveGuild(guildId);
-                }
-            });
-            document.body.removeChild(overlay);
-        };
-
-        const cancelButton = document.createElement("button");
-        cancelButton.innerText = "Cancel";
-        cancelButton.style.padding = "5px 10px";
-        cancelButton.style.background = "#4f545c";
-        cancelButton.style.color = "white";
-        cancelButton.style.border = "none";
-        cancelButton.style.borderRadius = "5px";
-        cancelButton.style.cursor = "pointer";
-        cancelButton.onclick = () => document.body.removeChild(overlay);
-
-        actions.appendChild(confirmButton);
-        actions.appendChild(cancelButton);
-        modal.appendChild(actions);
-
+        modal.appendChild(closeBtn);
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
     }
