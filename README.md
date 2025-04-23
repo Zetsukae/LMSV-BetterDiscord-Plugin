@@ -1,6 +1,8 @@
 # LeaveMultipleServersVanilla
 
-! [Plugin Thumbnail](https://i.imgur.com/xIuu8VH.jpeg)
+<p align="center">
+  <img src="https://i.imgur.com/abc123.png" alt="Plugin Thumbnail" width="600"/>
+</p>
 
 > *BetterDiscord plugin* — Leave multiple servers at once, with server icons, names.
 
