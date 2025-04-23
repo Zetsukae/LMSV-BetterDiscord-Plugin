@@ -1,8 +1,12 @@
 /**
- * @name LeaveMultipleServers
+ * @name LeaveMultipleServersManual
  * @author Zetsukae
- * @version 1.0.0
- * @description Leave Multiple Servers more easily !
+ * @authorId 1015566773669601282
+ * @version 1.4.1
+ * @description Select multiple servers to leave, but leave them manually. If you want the instant version, check out my Github. However, if you download it directly, you will recognize the potential risks.
+ * @source https://github.com/Zetsukae/LMSV-BetterDiscord-Plugin?tab=License-1-ov-file
+ * @license CC BY-NC 4.0
+ * @tags BetterDiscord, Server Management, Discord Plugin, Leave Servers
  */
 
 module.exports = class {
@@ -17,7 +21,7 @@ module.exports = class {
         container.style.padding = "20px";
 
         const button = document.createElement("button");
-        button.innerText = "Gérer les serveurs";
+        button.innerText = "Manage Servers";
         button.style.padding = "10px 20px";
         button.style.background = "#7289da";
         button.style.color = "white";
@@ -28,6 +32,14 @@ module.exports = class {
 
         container.appendChild(button);
         return container;
+    }
+
+    showToast(msg, type = "info") {
+        if (typeof BdApi.showToast === "function") {
+            BdApi.showToast(msg, { type });
+        } else {
+            alert('${type.toUpperCase()}: ${msg}');
+        }
     }
 
     showServerList() {
@@ -63,7 +75,7 @@ module.exports = class {
         modal.onclick = (e) => e.stopPropagation();
 
         const title = document.createElement("h3");
-        title.innerText = "Clique sur chaque bouton pour quitter un serveur :";
+        title.innerText = "Click the button to leave a server:";
         modal.appendChild(title);
 
         const list = document.createElement("div");
@@ -73,8 +85,8 @@ module.exports = class {
             const item = document.createElement("div");
             item.style.display = "flex";
             item.style.alignItems = "center";
-            item.style.marginBottom = "10px";
             item.style.justifyContent = "space-between";
+            item.style.marginBottom = "10px";
 
             const left = document.createElement("div");
             left.style.display = "flex";
@@ -85,18 +97,22 @@ module.exports = class {
             icon.style.height = "24px";
             icon.style.borderRadius = "50%";
             icon.style.marginRight = "8px";
-            icon.src = guild.icon 
-                ? https://cdn.discordapp.com/icons/${id}/${guild.icon}.png
-                : https://cdn.discordapp.com/embed/avatars/0.png;
+
+            if (guild.icon && id) {
+                const format = guild.icon.startsWith("a_") ? "gif" : "png";
+                icon.src = `https://cdn.discordapp.com/icons/${id}/${guild.icon}.${format}?size=64`;
+            } else {
+                icon.src = `https://cdn.discordapp.com/embed/avatars/0.png`;
+            }
 
             const label = document.createElement("span");
-            label.innerText = guild.name || Server ID: ${id};
+            label.innerText = guild.name || `Server ID: ${id}`;
 
             left.appendChild(icon);
             left.appendChild(label);
 
             const leaveButton = document.createElement("button");
-            leaveButton.innerText = "Quitter";
+            leaveButton.innerText = "Leave";
             leaveButton.style.padding = "5px 10px";
             leaveButton.style.background = "#f04747";
             leaveButton.style.color = "white";
@@ -105,11 +121,9 @@ module.exports = class {
             leaveButton.style.cursor = "pointer";
             leaveButton.onclick = () => {
                 if (guild.ownerId === myId) {
-                    BdApi.showToast(Impossible de quitter ${guild.name} : vous êtes le propriétaire., { type: "error" });
+                    this.showOwnerModal(guild.name);
                 } else {
-                    GuildActions.leaveGuild(id);
-                    BdApi.showToast(Vous avez quitté : ${guild.name}, { type: "success" });
-                    item.remove();
+                    this.showConfirmationModal(guild.name, id, GuildActions, item);
                 }
             };
 
@@ -121,7 +135,121 @@ module.exports = class {
         modal.appendChild(list);
 
         const closeBtn = document.createElement("button");
-        closeBtn.innerText = "Fermer";
+        closeBtn.innerText = "Close";
+        closeBtn.style.marginTop = "15px";
+        closeBtn.style.padding = "5px 10px";
+        closeBtn.style.background = "#4f545c";
+        closeBtn.style.color = "white";
+        closeBtn.style.border = "none";
+        closeBtn.style.borderRadius = "5px";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.onclick = () => document.body.removeChild(overlay);
+
+        modal.appendChild(closeBtn);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    }
+
+    showConfirmationModal(serverName, id, GuildActions, item) {
+        const overlay = document.createElement("div");
+        overlay.style = `
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+        `;
+        overlay.onclick = () => document.body.removeChild(overlay);
+
+        const modal = document.createElement("div");
+        modal.style = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2f3136;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            min-width: 300px;
+        `;
+        modal.onclick = (e) => e.stopPropagation();
+
+        const title = document.createElement("h3");
+        title.innerText = `Are you sure you want to leave "${serverName}"?`;
+        modal.appendChild(title);
+
+        const buttons = document.createElement("div");
+        buttons.style.display = "flex";
+        buttons.style.justifyContent = "space-between";
+        buttons.style.marginTop = "15px";
+
+        const confirm = document.createElement("button");
+        confirm.innerText = "Confirm";
+        confirm.style.padding = "5px 10px";
+        confirm.style.background = "#f04747";
+        confirm.style.color = "white";
+        confirm.style.border = "none";
+        confirm.style.borderRadius = "5px";
+        confirm.style.cursor = "pointer";
+        confirm.onclick = () => {
+            try {
+                GuildActions.leaveGuild(id);
+                this.showToast(`Left: ${serverName}`, "success");
+                item.remove();
+                document.body.removeChild(overlay);
+            } catch (e) {
+                this.showToast(`Failed to leave server ${serverName}: ${e.message}`, "error");
+            }
+        };
+
+        const cancel = document.createElement("button");
+        cancel.innerText = "Cancel";
+        cancel.style.padding = "5px 10px";
+        cancel.style.background = "#4f545c";
+        cancel.style.color = "white";
+        cancel.style.border = "none";
+        cancel.style.borderRadius = "5px";
+        cancel.style.cursor = "pointer";
+        cancel.onclick = () => document.body.removeChild(overlay);
+
+        buttons.appendChild(confirm);
+        buttons.appendChild(cancel);
+        modal.appendChild(buttons);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+    }
+
+    showOwnerModal(serverName) {
+        const overlay = document.createElement("div");
+        overlay.style = `
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+        `;
+        overlay.onclick = () => document.body.removeChild(overlay);
+
+        const modal = document.createElement("div");
+        modal.style = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2f3136;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            min-width: 300px;
+            text-align: center;
+        `;
+        modal.onclick = (e) => e.stopPropagation();
+
+        const title = document.createElement("h3");
+        title.innerText = `"${serverName}" - You're the owner of this server and cannot leave it.`;
+        modal.appendChild(title);
+
+        const closeBtn = document.createElement("button");
+        closeBtn.innerText = "Close";
         closeBtn.style.marginTop = "15px";
         closeBtn.style.padding = "5px 10px";
         closeBtn.style.background = "#4f545c";
