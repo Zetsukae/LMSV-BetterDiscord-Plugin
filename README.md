@@ -20,7 +20,12 @@
 ---
 
 ## Screenshots
-soon
+![Capture d'écran 2025-04-23 175013](https://github.com/user-attachments/assets/66e3f103-6cc3-4eac-a70c-ee28a58fa365)
+
+![Capture d'écran 2025-04-23 175027](https://github.com/user-attachments/assets/1caa3328-35f7-48d6-8d84-3f7e7d46bc58)
+
+![Capture d'écran 2025-04-23 175040](https://github.com/user-attachments/assets/7db9a3eb-58c8-40f7-b6ba-150d8e0a3920)
+
 ---
 
 ## Installation
