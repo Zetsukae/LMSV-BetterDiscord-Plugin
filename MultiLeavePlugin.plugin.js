@@ -1,9 +1,9 @@
 /**
  * @name LeaveMultipleServersVanilla
  * @author Zetsukae
- * @version 1.2.2
+ * @version 1.2.1
  * @description Leave multiple servers at once, with server icons, names — V.1.2.1 / only created by Zetsukae
- * @github https://github.com/Zetsukae/LMSV-BetterDiscord-Plugin
+ * @github https://github.com/Zetsukae/MultiLeaveBDPlugin
  */
 
 module.exports = class {
@@ -32,11 +32,11 @@ module.exports = class {
     }
 
     showServerList() {
-        const { getGuilds, getGuild } = BdApi.findModuleByProps("getGuilds", "getGuild");
-        const { leaveGuild } = BdApi.findModuleByProps("leaveGuild");
-        const { getCurrentUser } = BdApi.findModuleByProps("getCurrentUser");
-        const myId = getCurrentUser().id;
-        const guilds = getGuilds();
+        const GuildStore = BdApi.findModuleByProps("getGuilds", "getGuild");
+        const GuildActions = BdApi.findModuleByProps("leaveGuild");
+        const CurrentUser = BdApi.findModuleByProps("getCurrentUser");
+        const myId = CurrentUser.getCurrentUser().id;
+        const guilds = GuildStore.getGuilds();
 
         const overlay = document.createElement("div");
         overlay.style = `
@@ -85,7 +85,7 @@ module.exports = class {
             icon.style.marginRight = "8px";
 
             if (guild.icon) {
-                icon.src = 'https://cdn.discordapp.com/icons/${id}/${guild.icon}.png';
+                icon.src = 'https://cdn.discordapp.com/icons/' + id + '/' + guild.icon + '.png';
             } else {
                 icon.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
             }
@@ -104,11 +104,11 @@ module.exports = class {
             };
 
             const label = document.createElement("span");
-            const guildData = getGuild(id);
+            const guildData = GuildStore.getGuild(id);
             if (guildData && guildData.name) {
                 label.innerText = guildData.name;
             } else {
-                label.innerText = 'Server ID: ${id}';
+                label.innerText = 'Server ID: ' + id;
             }
 
             item.appendChild(icon);
@@ -134,12 +134,12 @@ module.exports = class {
         confirmButton.style.cursor = "pointer";
         confirmButton.onclick = () => {
             selectedServers.forEach(guildId => {
-                const guildData = getGuild(guildId);
+                const guildData = GuildStore.getGuild(guildId);
                 if (guildData.ownerId === myId) {
-                    BdApi.showToast('Cannot leave ${guildData.name}, you are the owner!', { type: "error" });
+                    BdApi.showToast("Cannot leave " + guildData.name + ", you are the owner!", {type: "error"});
                 } else {
-                    BdApi.showToast('Successfully left server: ${guildData.name}', { type: "success" });
-                    leaveGuild(guildId);
+                    BdApi.showToast("Successfully left server: " + guildData.name, {type: "success"});
+                    GuildActions.leaveGuild(guildId);
                 }
             });
             document.body.removeChild(overlay);
