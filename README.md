@@ -1,6 +1,6 @@
 <h1>
   <img src="https://i.imgur.com/xIuu8VH.jpeg" alt="Plugin Logo" width="28" style="vertical-align: middle; margin-right: 8px;">
-  LeaveMultipleServersVanilla
+  LeaveMultipleServers
 </h1>
 
 > *BetterDiscord plugin* — Leave multiple servers at once, with server icons, names.
@@ -20,12 +20,7 @@
 ---
 
 ## Screenshots
-![Capture d'écran 2025-04-22 222437](https://github.com/user-attachments/assets/e5e68112-6ffc-49ac-8f92-21d8d2fc6e87)
-
-![Capture d'écran 2025-04-22 222454](https://github.com/user-attachments/assets/43d9982e-2cc4-4e40-81ce-f0636b2d5293)
-
-![Capture d'écran 2025-04-22 222511](https://github.com/user-attachments/assets/63250ac0-694e-4241-94e9-129b4185302b)
-
+soon
 ---
 
 ## Installation
