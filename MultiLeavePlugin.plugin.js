@@ -1,9 +1,10 @@
 /**
  * @name LeaveMultipleServersVanilla
+ * @version 1.2.2
+ * @description Leave multiple servers at once, with server icons, names.
  * @author Zetsukae
- * @version 1.2.1
- * @description Leave multiple servers at once, with server icons, names — V.1.2.1 / only created by Zetsukae
- * @github https://github.com/Zetsukae/MultiLeaveBDPlugin
+ * @source https://github.com/Zetsukae/MultiLeaveBDPlugin
+ * @updateUrl https://raw.githubusercontent.com/Zetsukae/MultiLeaveBDPlugin/main/LeaveMultipleServersVanilla.plugin.js
  */
 
 module.exports = class {
